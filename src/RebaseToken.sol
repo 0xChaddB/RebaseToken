@@ -30,7 +30,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
     function grantMintAndBurnRole(address _account) external onlyOwner {
         _grantRole(MINT_AND_BURN_ROLE, _account);
     }
-    
+
     /* 
     * @notice Set the interest rate in the contract
     * @param _newinterestRate The new interest rate
@@ -59,7 +59,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
     * @param _to The user
     * @param _amount The amount of tokens to mint
     */
-    function mint(address _to, uint256 _amount) external {
+    function mint(address _to, uint256 _amount) external onlyRole(MINT_AND_BURN_ROLE) {
         _mintAccruedInterest(_to);
         s_userInterestRates[_to] = s_interestRate;
         _mint(_to, _amount);
@@ -70,7 +70,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
     * @param _from The user to burn tokens from
     * @param _amount The amount of tokens to burn
     */
-    function burn(address _from, uint256 _amount) external {
+    function burn(address _from, uint256 _amount) external onlyRole(MINT_AND_BURN_ROLE) {
         if ( _amount == type(uint256).max) {    
             _amount = balanceOf(_from); 
         }
