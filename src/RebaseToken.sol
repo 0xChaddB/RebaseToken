@@ -70,30 +70,29 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
      * @param _from The user to burn tokens from
      * @param _amount The amount of tokens to burn
     */
-    function burn(address _from, uint256 _amount) external onlyRole(MINT_AND_BURN_ROLE) {
-        if ( _amount == type(uint256).max) {    
-            _amount = balanceOf(_from); 
-        }
+    function burn(address _from, uint256 _amount) public onlyRole(MINT_AND_BURN_ROLE) {
+        // Mints any existing interest that has accrued since the last time the user's balance was updated.
         _mintAccruedInterest(_from);
         _burn(_from, _amount);
     }
 
     /** 
      * @notice Mints the accrued interest to the user since the last time they interacted with the protocol, (e.g, burn, mint, transfer...)
-     * @param _to The user 
+     * @param _user The user 
     */
-    function _mintAccruedInterest(address _to) private {
-        // 1. find their current balance of rebase tokens that have been minted to the user 
-        uint256 previousPrincipleBalance = super.balanceOf(_to);
-        // 2. calculate their current balance including any interest -> balanceOf
-        uint256 currentBalance = balanceOf(_to);
-        // 3. calculate the number of tokens that need to be minted to the user 
-        uint256 balanceIncrease = currentBalance - previousPrincipleBalance;
-        // call mint to min the token to the user 
-        // set the users last updated timestamp
+    function _mintAccruedInterest(address _user) internal {
+        // Get the user's previous principal balance. The amount of tokens they had last time their interest was minted to them.
+        uint256 previousPrincipalBalance = super.balanceOf(_user);
 
-        _mint(_to, balanceIncrease); // mint the tokens to the user i
-                s_userLastUpdatedTimestamp[_to] = block.timestamp;
+        // Calculate the accrued interest since the last accumulation
+        // `balanceOf` uses the user's interest rate and the time since their last update to get the updated balance
+        uint256 currentBalance = balanceOf(_user);
+        uint256 balanceIncrease = currentBalance - previousPrincipalBalance;
+
+        // Mint an amount of tokens equivalent to the interest accrued
+        _mint(_user, balanceIncrease);
+        // Update the user's last updated timestamp to reflect this most recent time their interest was minted to them.
+        s_userLastUpdatedTimestamp[_user] = block.timestamp;
     }
     
     /** 
