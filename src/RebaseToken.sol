@@ -17,7 +17,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
     uint256 private constant PRECISION_FACTOR = 1e18;
     bytes32 private constant MINT_AND_BURN_ROLE = keccak256("MINT_AND_BURN_ROLE");
     uint256 private s_interestRate = 5e10;
-    mapping(address => uint256) private s_userInterestRates;
+    mapping(address => uint256) private s_userInterestRate;
     mapping(address => uint256) private s_userLastUpdatedTimestamp;
 
     error RebaseToken__InterestRateCanOnlyDecrease(uint256 oldInterestRate, uint256 newInterestRate);
@@ -61,7 +61,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
     */
     function mint(address _to, uint256 _amount) external onlyRole(MINT_AND_BURN_ROLE) {
         _mintAccruedInterest(_to);
-        s_userInterestRates[_to] = s_interestRate;
+        s_userInterestRate[_to] = s_interestRate;
         _mint(_to, _amount);
     }
 
@@ -91,8 +91,9 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
         uint256 balanceIncrease = currentBalance - previousPrincipleBalance;
         // call mint to min the token to the user 
         // set the users last updated timestamp
-        s_userLastUpdatedTimestamp[_to] = block.timestamp;
+
         _mint(_to, balanceIncrease); // mint the tokens to the user i
+                s_userLastUpdatedTimestamp[_to] = block.timestamp;
     }
     
     /** 
@@ -103,8 +104,9 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
 
     function _calculateUserAccumulatedInterestdSinceLastUpdate(address _user) internal view returns (uint256 linearInterest) {
         
-        uint256 timeElapsed = block.timestamp - s_userLastUpdatedTimestamp[_user];
-        linearInterest = (PRECISION_FACTOR +(s_userInterestRates[_user] * timeElapsed));
+        uint256 timeDifference = block.timestamp - s_userLastUpdatedTimestamp[_user];
+        // represents the linear growth over time = 1 + (interest rate * time)
+        linearInterest = (s_userInterestRate[_user] * timeDifference) + PRECISION_FACTOR;
 
     }
 
@@ -114,7 +116,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
      * @return The interest rate for the user
     */
     function getUserInterestRate(address _user) external view returns (uint256) {
-        return s_userInterestRates[_user];
+        return s_userInterestRate[_user];
     }
 
     function getUserInterestRate() external view returns (uint256) {
@@ -144,7 +146,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
         }
 
         if (balanceOf(_recipient) == 0) {
-            s_userInterestRates[_recipient] = s_userInterestRates[msg.sender];
+            s_userInterestRate[_recipient] = s_userInterestRate[msg.sender];
         }
         return super.transfer(_recipient, _amount);
     }
@@ -164,7 +166,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
         }
 
         if (balanceOf(_recipient) == 0) {
-            s_userInterestRates[_recipient] = s_userInterestRates[_sender];
+            s_userInterestRate[_recipient] = s_userInterestRate[_sender];
         }
         return super.transferFrom(_sender, _recipient, _amount);
     }
