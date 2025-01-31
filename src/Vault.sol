@@ -20,12 +20,19 @@ contract Vault {
     
     receive() external payable {}
 
+    /**
+     * @notice Allows user to deposit ETH into the vault and mint RebaseTokens in return
+    */
     function deposit() external payable {
         // 1. We need to use the amount of ETH the user has sent to visit tokens to the user 
         i_rebaseToken.mint(msg.sender, msg.value);
         emit Deposit(msg.sender, msg.value);
     }
 
+    /**
+     * @notice Allows user to redeem their rebase tokens for ETH
+     * @param _amount The amount of tokens to redeem
+    */
     function redeem(uint256 _amount) external {
         // 1. Burn the tokens from the user
         i_rebaseToken.burn(msg.sender, _amount);
@@ -37,6 +44,10 @@ contract Vault {
         emit Vault__Redeem(msg.sender, _amount);
     }
 
+    /**
+     * @notice Returns the address of the rebase token 
+     * @return The address of the rebase token
+    */
     function getRebaseTokenAddress() external view returns (address) {
         return address(i_rebaseToken);
     }
