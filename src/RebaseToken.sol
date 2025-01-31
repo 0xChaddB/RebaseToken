@@ -84,15 +84,15 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
     */
     function _mintAccruedInterest(address _to) private {
         // 1. find their current balance of rebase tokens that have been minted to the user 
-        uint256 previousPrincipleBalance = super.balanceOf(_user);
+        uint256 previousPrincipleBalance = super.balanceOf(_to);
         // 2. calculate their current balance including any interest -> balanceOf
-        uint256 currentBalance = balanceOf(_user);
+        uint256 currentBalance = balanceOf(_to);
         // 3. calculate the number of tokens that need to be minted to the user 
         uint256 balanceIncrease = currentBalance - previousPrincipleBalance;
         // call mint to min the token to the user 
         // set the users last updated timestamp
-        s_userLastUpdatedTimestamp[_user] = block.timestamp;
-        _mint(_user, balanceIncrease); // mint the tokens to the user i
+        s_userLastUpdatedTimestamp[_to] = block.timestamp;
+        _mint(_to, balanceIncrease); // mint the tokens to the user i
     }
     
     /** 
@@ -143,7 +143,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
             _amount = balanceOf(msg.sender);        
         }
 
-        if (balanceOF(_recipient) == 0) {
+        if (balanceOf(_recipient) == 0) {
             s_userInterestRates[_recipient] = s_userInterestRates[msg.sender];
         }
         return super.transfer(_recipient, _amount);
@@ -163,7 +163,7 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
             _amount = balanceOf(_sender);        
         }
 
-        if (balanceOF(_recipient) == 0) {
+        if (balanceOf(_recipient) == 0) {
             s_userInterestRates[_recipient] = s_userInterestRates[_sender];
         }
         return super.transferFrom(_sender, _recipient, _amount);
