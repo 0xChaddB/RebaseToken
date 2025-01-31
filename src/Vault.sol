@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import {IRebaseToken} from "./Interfaces/IRebaseToken.sol";
 contract Vault {
     // We need to pass the token address to the constructor.
     // Create a deposit function that mints tokens to the user equal to the user
@@ -10,7 +11,7 @@ contract Vault {
 
     event Deposit(address user, uint256 amount);
 
-    constructor(address _rebaseToken) {
+    constructor(IRebaseToken _rebaseToken) {
         i_rebaseToken = _rebaseToken;
     }
     
