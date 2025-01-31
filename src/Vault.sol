@@ -6,7 +6,7 @@ contract Vault {
     // Create a deposit function that mints tokens to the user equal to the user
     // Create a redeem function that bruns the tokens from the user and sends the user ETH.
     // create a way to add rewards to the vault
-    address private immutable i_rebaseToken;
+    IRebaseToken private immutable i_rebaseToken;
 
     event Deposit(address user, uint256 amount);
 
