@@ -11,8 +11,9 @@ contract Vault {
     IRebaseToken private immutable i_rebaseToken;
 
     event Deposit(address indexed user, uint256 amount);
+    event Vault__Redeem(address indexed user, uint256 amount);
     error Vault__RedeemFailed();
-    
+
     constructor(IRebaseToken _rebaseToken) {
         i_rebaseToken = _rebaseToken;
     }
@@ -33,6 +34,7 @@ contract Vault {
         if (!success) {
             revert Vault__RedeemFailed();
         }
+        emit Vault__Redeem(msg.sender, _amount);
     }
 
     function getRebaseTokenAddress() external view returns (address) {
