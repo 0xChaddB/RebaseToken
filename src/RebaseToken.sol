@@ -98,7 +98,9 @@ contract RebaseToken is ERC20, Ownable, AccessControl {
     /** 
      * @notice Calculate the amount of interest that has accrued since the last time the user interacted with the protocol
      * @param _user The user we want to calculate the interest 
+     * @return linearInterest amount of interest that has accrued
     */
+
     function _calculateUserAccumulatedInterestdSinceLastUpdate(address _user) internal view returns (uint256 linearInterest) {
         
         uint256 timeElapsed = block.timestamp - s_userLastUpdatedTimestamp[_user];
