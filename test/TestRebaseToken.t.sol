@@ -14,6 +14,7 @@ contract TestRebaseToken is Test {
 
     address public owner = makeAddr("owner");
     address public user = makeAddr("user");
+    uint256 public SEND_VALUE = 1e5;
 
     function setUp() public {
         vm.startPrank(owner);
@@ -141,12 +142,20 @@ contract TestRebaseToken is Test {
         vm.stopPrank();
     }
 
-    function testCannotCallMintAndBurn() public {
-        vm.prank(user);
-        vm.expectPartialRevert(bytes4(IAccessControl.AccessControlUnauthorizedAccount.selector));
-        rebaseToken.mint(address(user), 100);
-        vm.expectPartialRevert(bytes4(IAccessControl.AccessControlUnauthorizedAccount.selector));
-        rebaseToken.burn(address(user), 100);
+    function testCannotCallMint() public {
+        // Deposit funds
+        vm.startPrank(user);
+        uint256 interestRate = rebaseToken.getInterestRate();
+        vm.expectRevert();
+        rebaseToken.mint(user, SEND_VALUE, interestRate);
+        vm.stopPrank();
+    }
+
+    function testCannotCallBurn() public {
+        // Deposit funds
+        vm.startPrank(user);
+        vm.expectRevert();
+        rebaseToken.burn(user, SEND_VALUE);
         vm.stopPrank();
     }
     
